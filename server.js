@@ -22,40 +22,50 @@ app.get('/registration', (req, res) => {
 
 
 app.post('/login', urlencodedParser, function (req, res) {
-    let obj = {} //สร้าง object เปล่าๆรอ
+    let obj = {}
     fs.readFile('myuser.json', 'utf8', function readFileCallback(err, data) {
         if (err) {
             console.log(err);
         } else {
             obj = JSON.parse(data)
-            if (obj.email == req.body.email) { // check ว่า email ที่ผู้ใช้กรอกมาใหม่ ตรงกับที่เราเก็บข้อมูลไว้หรือไม่
+            if (obj.email == req.body.email) {
                 if (obj.password == req.body.password) {
-                    res.send('ยินดีด้วยคุณลงชื่อเข้าใช้งานได้แล้ว')
+                    res.send('login success')
                 } else {
-                    res.send('รหัสผ่านไม่ถูกต้อง')
+                    res.send('Password is incorrect')
                 }
             } else {
-                res.send('ไม่พบ Email ของคุณ')
+                res.send('Not found email')
             }
         }
     })
 })
 
 app.post('/registration', urlencodedParser, (req, res) => {
-    fs.readFile('myuser.json', 'utf8', function readFileCallback(err, data) {
-        if (err){
-            console.log(err);
-        } else {
-        obj = JSON.parse(data); //now it an object
-        obj.push({
-            email: req.body.email,
-            password: req.body.password
-        }); //add some data
-        jsonString = JSON.stringify(obj); //convert it back to json
+    var obj = []
+    const json = [{
+        email: req.body.email,
+        password: req.body.password
+    }]
 
-        fs.writeFile('myuser.json', jsonString, 'utf8', () => {
-            res.send('ok : ' + req.body.email + ', ' + req.body.password)
-        })
+    fs.readFile('myuser.json', 'utf8', function readFileCallback(err, data) {
+        if (err) {
+            jsonString = JSON.stringify(json);
+            fs.writeFile('myuser.json', jsonString, 'utf8', () => {
+                res.send('ok : ' + req.body.email + ', ' + req.body.password)
+            })
+        } else {
+            obj = JSON.parse(data);
+            obj.push({
+                email: req.body.email,
+                password: req.body.password
+            })
+            jsonString = JSON.stringify(obj);
+
+            fs.writeFile('myuser.json', jsonString, 'utf8', () => {
+                res.send('ok : ' + req.body.email + ', ' + req.body.password)
+            })
+        }
     })
 })
 
